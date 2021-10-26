@@ -92,6 +92,18 @@ func (inst *syncClientImpl) ExecuteScript(script string) error {
 
 func (inst *syncClientImpl) makeTaskWithArgs(cmd string, args []string) *cli.Task {
 
+	if cmd != "" {
+		clb := cli.CommandLineBuilder{}
+		clp := cli.CommandLineParser{}
+		clb.AppendString(cmd)
+		clb.AppendStrings(args)
+		line := clb.Create()
+		a2, err := clp.Parse(line)
+		if err == nil {
+			args = a2
+		}
+	}
+
 	builder := cli.TaskListBuilder{}
 	builder.AddLine("", 0, args)
 

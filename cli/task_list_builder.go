@@ -1,10 +1,10 @@
 package cli
 
 import (
-	"errors"
 	"strings"
 )
 
+// TaskListBuilder ...
 type TaskListBuilder struct {
 	list []*TaskUnit
 }
@@ -18,6 +18,7 @@ func (inst *TaskListBuilder) getList() []*TaskUnit {
 	return list
 }
 
+// Create ...
 func (inst *TaskListBuilder) Create() []*TaskUnit {
 	src := inst.getList()
 	dst := make([]*TaskUnit, 0)
@@ -35,7 +36,14 @@ func (inst *TaskListBuilder) Create() []*TaskUnit {
 	return dst
 }
 
+// AddLine @line: 完整的行文本； @index: 行号（base=0）； @args: 命令以及参数；
 func (inst *TaskListBuilder) AddLine(line string, index int, args []string) error {
+
+	if line == "" {
+		clb := CommandLineBuilder{}
+		clb.AppendStrings(args)
+		line = clb.Create()
+	}
 
 	unit := &TaskUnit{}
 	unit.LineNumber = index + 1
@@ -49,29 +57,15 @@ func (inst *TaskListBuilder) AddLine(line string, index int, args []string) erro
 }
 
 func (inst *TaskListBuilder) parseLine(line string, index int) error {
-
-	args := make([]string, 0)
-	reader := &commandLineReader{}
-	reader.init(line)
-
-	for {
-		reader.skipSpace()
-		if reader.hasMore() {
-			element, err := reader.read()
-			if err != nil {
-				return err
-			}
-			if element != "" {
-				args = append(args, element)
-			}
-		} else {
-			break
-		}
+	parser := CommandLineParser{}
+	args, err := parser.Parse(line)
+	if err != nil {
+		return err
 	}
-
 	return inst.AddLine(line, index, args)
 }
 
+// ParseScript 解析脚本
 func (inst *TaskListBuilder) ParseScript(script string) error {
 	const ch1 = "\r"
 	const ch2 = "\n"
@@ -84,121 +78,4 @@ func (inst *TaskListBuilder) ParseScript(script string) error {
 		}
 	}
 	return nil
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-type commandLineReader struct {
-	source  []rune
-	ptr     int
-	length  int
-	builder strings.Builder
-}
-
-func (inst *commandLineReader) init(line string) {
-	array := ([]rune(line))
-	inst.ptr = 0
-	inst.length = len(array)
-	inst.source = array
-}
-
-func (inst *commandLineReader) hasMore() bool {
-	return inst.ptr < inst.length
-}
-
-func (inst *commandLineReader) read() (string, error) {
-
-	i := inst.ptr
-	length := inst.length
-	array := inst.source
-
-	if i >= length {
-		return "", errors.New("EOF")
-	}
-
-	const mk1 = '\''
-	const mk2 = '"'
-	ch := array[i]
-
-	if ch == '=' {
-		inst.ptr = i + 1
-		return "", nil
-	} else if ch == mk1 {
-		return inst.readText(mk1)
-	} else if ch == mk2 {
-		return inst.readText(mk2)
-	} else {
-		return inst.readToken()
-	}
-}
-
-func (inst *commandLineReader) readToken() (string, error) {
-
-	builder := &inst.builder
-	i := inst.ptr
-	length := inst.length
-	array := inst.source
-	chs := []rune{' ', '\t', '=', '"', '\'', '\n', '\r'} // ending of token
-
-	builder.Reset()
-
-	for ; i < length; i++ {
-		ch := array[i]
-		if inst.containsRune(ch, chs) {
-			break
-		}
-		builder.WriteRune(ch)
-	}
-
-	inst.ptr = i
-	return builder.String(), nil
-}
-
-func (inst *commandLineReader) readText(ending rune) (string, error) {
-
-	builder := &inst.builder
-	i := inst.ptr + 1
-	length := inst.length
-	array := inst.source
-
-	builder.Reset()
-
-	for ; i < length; i++ {
-		ch := array[i]
-		if ch == ending {
-			inst.ptr = i + 1
-			return builder.String(), nil
-		}
-		builder.WriteRune(ch)
-	}
-
-	return "", errors.New("end with exception")
-}
-
-func (inst *commandLineReader) skipSpace() {
-	i := inst.ptr
-	length := inst.length
-	array := inst.source
-	chs := []rune{' ', '\t', '\n', '\r'}
-	for ; i < length; i++ {
-		ch := array[i]
-		if inst.containsRune(ch, chs) {
-			continue
-		} else {
-			break
-		}
-	}
-	inst.ptr = i
-}
-
-func (inst *commandLineReader) containsRune(ch rune, list []rune) bool {
-	if list == nil {
-		return false
-	}
-	for _, ch2 := range list {
-		if ch == ch2 {
-			return true
-		}
-	}
-	return false
 }
