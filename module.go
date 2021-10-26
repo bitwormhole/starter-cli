@@ -9,8 +9,8 @@ import (
 
 const (
 	myModuleName = "github.com/bitwormhole/starter-cli"
-	myModuleVer  = "v0.0.2"
-	myModuleRev  = 2
+	myModuleVer  = "v0.0.3"
+	myModuleRev  = 3
 )
 
 // Module 导出模块【github.com/bitwormhole/starter-cli】
