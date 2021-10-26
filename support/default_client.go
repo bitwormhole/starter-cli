@@ -72,14 +72,8 @@ func (inst *syncClientImpl) ExecuteTask(t *cli.Task) error {
 	return chain.Handle(tc)
 }
 
-// Execute  todo...
-func (inst *syncClientImpl) Execute(cmd string) error {
-	tc := inst.makeTaskWithLine(cmd)
-	return inst.ExecuteTask(tc)
-}
-
 // ExecuteWithArguments  todo...
-func (inst *syncClientImpl) ExecuteWithArguments(cmd string, args []string) error {
+func (inst *syncClientImpl) Execute(cmd string, args []string) error {
 	t := inst.makeTaskWithArgs(cmd, args)
 	return inst.ExecuteTask(t)
 }
@@ -90,25 +84,29 @@ func (inst *syncClientImpl) ExecuteScript(script string) error {
 	return inst.ExecuteTask(t)
 }
 
-func (inst *syncClientImpl) makeTaskWithArgs(cmd string, args []string) *cli.Task {
+func (inst *syncClientImpl) makeTaskWithArgs(cmd string, args1 []string) *cli.Task {
 
-	if cmd != "" {
-		clb := cli.CommandLineBuilder{}
-		clp := cli.CommandLineParser{}
-		clb.AppendString(cmd)
-		clb.AppendStrings(args)
-		line := clb.Create()
-		a2, err := clp.Parse(line)
-		if err == nil {
-			args = a2
-		}
+	clbuilder := cli.CommandLineBuilder{}
+	parser := cli.CommandLineParser{}
+
+	args0, err := parser.Parse(cmd)
+	if err != nil {
+		args0 = []string{}
+	}
+
+	clbuilder.AppendStrings(args0)
+	clbuilder.AppendStrings(args1)
+	line2 := clbuilder.Create()
+
+	args2, err := parser.Parse(line2)
+	if err != nil {
+		args2 = []string{}
 	}
 
 	builder := cli.TaskListBuilder{}
-	builder.AddLine("", 0, args)
-
+	builder.AddLine(line2, 0, args2)
 	t := &cli.Task{}
-	t.Script = ""
+	t.Script = line2
 	t.TaskList = builder.Create()
 	return t
 }
@@ -120,17 +118,6 @@ func (inst *syncClientImpl) makeTaskWithScript(script string) *cli.Task {
 
 	t := &cli.Task{}
 	t.Script = script
-	t.TaskList = builder.Create()
-	return t
-}
-
-func (inst *syncClientImpl) makeTaskWithLine(command string) *cli.Task {
-
-	builder := cli.TaskListBuilder{}
-	builder.ParseScript(command)
-
-	t := &cli.Task{}
-	t.Script = command
 	t.TaskList = builder.Create()
 	return t
 }
@@ -175,12 +162,7 @@ func (inst *asyncClientImpl) GetFactory() cli.ClientFactory {
 	return inst.sync.factory
 }
 
-func (inst *asyncClientImpl) Execute(cmd string) task.Promise {
-	t := inst.sync.makeTaskWithLine(cmd)
-	return inst.ExecuteTask(t)
-}
-
-func (inst *asyncClientImpl) ExecuteWithArguments(cmd string, args []string) task.Promise {
+func (inst *asyncClientImpl) Execute(cmd string, args []string) task.Promise {
 	t := inst.sync.makeTaskWithArgs(cmd, args)
 	return inst.ExecuteTask(t)
 }

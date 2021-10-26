@@ -11,9 +11,8 @@ type Client interface {
 	GetContext() context.Context
 	GetFactory() ClientFactory
 
-	Execute(cmd string) error
 	ExecuteTask(task *Task) error
-	ExecuteWithArguments(cmd string, args []string) error
+	Execute(cmd string, args []string) error
 
 	// execute multi-line commands
 	ExecuteScript(script string) error
@@ -24,10 +23,9 @@ type AsyncClient interface {
 	GetContext() context.Context
 	GetFactory() ClientFactory
 
-	Execute(cmd string) task.Promise
 	ExecuteTask(task *Task) task.Promise
 	ExecuteScript(script string) task.Promise
-	ExecuteWithArguments(cmd string, args []string) task.Promise
+	Execute(cmd string, args []string) task.Promise
 }
 
 // ClientFactory 是命令客户端的工厂

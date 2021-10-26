@@ -73,7 +73,7 @@ func (inst *cmdTester) run(cmd string) error {
 
 	factory := o1.(cli.ClientFactory)
 	client := factory.CreateClient(app)
-	err = client.Execute(cmd)
+	err = client.Execute(cmd, nil)
 	if err != nil {
 		return err
 	}
