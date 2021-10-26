@@ -6,10 +6,10 @@ import (
 
 // TaskUnit 表示一条简单的命令
 type TaskUnit struct {
-	LineNumber  int
-	CommandName string
-	CommandLine string
-	Arguments   []string
+	LineNumber  int      // 行号
+	CommandName string   // = args[0]
+	CommandLine string   // stringify(args)
+	Arguments   []string // 包含命令行的所有参数（包括cmd-name本身）
 }
 
 // Task 表示将要执行的任务
