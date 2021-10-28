@@ -1,10 +1,13 @@
 package startercli
 
 import (
+	"embed"
+
 	"github.com/bitwormhole/starter"
 	gen1 "github.com/bitwormhole/starter-cli/modules/cli-core/gen"
 	gen2 "github.com/bitwormhole/starter-cli/modules/cli-ext/gen"
 	"github.com/bitwormhole/starter/application"
+	"github.com/bitwormhole/starter/collection"
 )
 
 const (
@@ -13,12 +16,15 @@ const (
 	myModuleRev  = 3
 )
 
+//go:embed src/main/resources
+var theMainRes embed.FS
+
 // Module 导出模块【github.com/bitwormhole/starter-cli】
 func Module() application.Module {
 
 	mb := application.ModuleBuilder{}
 	mb.Name(myModuleName).Version(myModuleVer).Revision(myModuleRev)
-	mb.Resources(nil)
+	mb.Resources(collection.LoadEmbedResources(&theMainRes, "src/main/resources"))
 	mb.OnMount(gen1.ExportConfigCliCore)
 
 	mb.Dependency(starter.Module())
@@ -31,12 +37,16 @@ func Module() application.Module {
 // ModuleWithBasicCommands 导出模块【github.com/bitwormhole/starter-cli#cmds】
 func ModuleWithBasicCommands() application.Module {
 
+	parent := Module()
+
 	mb := application.ModuleBuilder{}
-	mb.Name(myModuleName + "#cmds").Version(myModuleVer).Revision(myModuleRev)
-	mb.Resources(nil)
+	mb.Name(parent.GetName() + "#cmds")
+	mb.Version(parent.GetVersion())
+	mb.Revision(parent.GetRevision())
+	mb.Resources(parent.GetResources())
 	mb.OnMount(gen2.ExportConfigCliExt)
 
-	mb.Dependency(Module())
+	mb.Dependency(parent)
 
 	return mb.Create()
 }
