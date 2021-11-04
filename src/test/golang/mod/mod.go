@@ -2,6 +2,7 @@ package mod
 
 import (
 	startercli "github.com/bitwormhole/starter-cli"
+	test2 "github.com/bitwormhole/starter-cli/gen/cli/test"
 	"github.com/bitwormhole/starter/application"
 )
 
@@ -14,6 +15,7 @@ func ExportModuleForCLITest() application.Module {
 	mb.Name(parent.GetName() + "#test")
 	mb.Version(parent.GetVersion())
 	mb.Revision(parent.GetRevision())
+	mb.OnMount(test2.ExportConfigCliTest)
 
 	mb.Dependency(parent)
 	mb.Dependency(startercli.ModuleWithBasicCommands())

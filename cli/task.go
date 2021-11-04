@@ -2,6 +2,8 @@ package cli
 
 import (
 	"context"
+
+	"github.com/bitwormhole/starter/task"
 )
 
 // TaskUnit 表示一条简单的命令
@@ -17,6 +19,7 @@ type Task struct {
 	Context  context.Context
 	TaskList []*TaskUnit
 	Script   string
+	Reporter task.ProgressReporter
 }
 
 // TaskContext 表示正在执行的任务
@@ -25,6 +28,7 @@ type TaskContext struct {
 	CurrentTask *TaskUnit
 	Handler     Handler
 	Service     Service
+	Reporter    task.ProgressReporter
 	TaskList    []*TaskUnit
 	Console     Console
 }
@@ -38,6 +42,7 @@ func (inst *TaskContext) Clone() *TaskContext {
 		Service:     inst.Service,
 		TaskList:    inst.TaskList,
 		Console:     inst.Console,
+		Reporter:    inst.Reporter,
 	}
 	return child
 }

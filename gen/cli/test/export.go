@@ -1,4 +1,4 @@
-package gen
+package test
 
 import "github.com/bitwormhole/starter/application"
 

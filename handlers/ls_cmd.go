@@ -8,6 +8,7 @@ import (
 	"github.com/bitwormhole/starter-cli/cli"
 	"github.com/bitwormhole/starter/io/fs"
 	"github.com/bitwormhole/starter/markup"
+	"github.com/bitwormhole/starter/util"
 )
 
 type LS struct {
@@ -53,6 +54,7 @@ func (inst *LS) stringifyItem(item fs.Path) string {
 	size := meta.Size()
 	date := meta.LastModTime()
 	name := item.Name()
+	mode := meta.Mode()
 
 	var strSize, strTime string
 	strTime = inst.stringifyTime(date)
@@ -67,6 +69,8 @@ func (inst *LS) stringifyItem(item fs.Path) string {
 
 	strTime = inst.addPaddingToString(strTime, 10, false)
 
+	builder.WriteString(mode.String())
+	builder.WriteString(" ")
 	builder.WriteString(strTime)
 	builder.WriteString(" ")
 	builder.WriteString(strSize)
@@ -90,7 +94,8 @@ func (inst *LS) addPaddingToString(str string, width int, alignRight bool) strin
 }
 
 func (inst *LS) stringifyTime(t int64) string {
-	return strconv.FormatInt(t, 10)
+	t2 := util.Int64ToTime(t)
+	return t2.String()
 }
 
 func (inst *LS) GetHelpInfo() *cli.CommandHelpInfo {

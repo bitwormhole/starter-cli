@@ -4,8 +4,8 @@ import (
 	"embed"
 
 	"github.com/bitwormhole/starter"
-	gen1 "github.com/bitwormhole/starter-cli/modules/cli-core/gen"
-	gen2 "github.com/bitwormhole/starter-cli/modules/cli-ext/gen"
+	gen1 "github.com/bitwormhole/starter-cli/gen/cli/core"
+	gen2 "github.com/bitwormhole/starter-cli/gen/cli/ext"
 	"github.com/bitwormhole/starter/application"
 	"github.com/bitwormhole/starter/collection"
 )

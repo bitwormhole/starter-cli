@@ -1,7 +1,7 @@
-package gen
+package ext
 
 import "github.com/bitwormhole/starter/application"
 
-func ExportConfigCliCore(cb application.ConfigBuilder) error {
+func ExportConfigCliExt(cb application.ConfigBuilder) error {
 	return autoGenConfig(cb)
 }

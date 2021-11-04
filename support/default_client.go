@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/bitwormhole/starter-cli/cli"
+
 	"github.com/bitwormhole/starter/markup"
 	"github.com/bitwormhole/starter/task"
 )
@@ -127,6 +128,7 @@ func (inst *syncClientImpl) makeTaskContext(t *cli.Task) *cli.TaskContext {
 	script := t.Script
 	tasklist := t.TaskList
 	context := t.Context
+	reporter := t.Reporter
 
 	if tasklist == nil {
 		task2 := inst.makeTaskWithScript(script)
@@ -137,9 +139,14 @@ func (inst *syncClientImpl) makeTaskContext(t *cli.Task) *cli.TaskContext {
 		context = inst.context
 	}
 
+	if reporter == nil {
+		reporter = &MockReporter{}
+	}
+
 	tc := &cli.TaskContext{}
 	tc.Context = context
 	tc.TaskList = tasklist
+	tc.Reporter = reporter
 
 	return tc
 }
