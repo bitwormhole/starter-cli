@@ -55,34 +55,52 @@ func (inst *Sleep) doLongSleep(t *cli.TaskContext, ms int64) error {
 	cancelled := false
 	paused := false
 
-	reporter.UpdateState(task.StateRunning)
+	p := &task.Progress{}
+	p.Name = "sleep"
+	p.Title = "Sleep"
+	p.Unit = "ms"
+	p.Value = ms - ttl
+	p.ValueMin = 0
+	p.ValueMax = ms
+
+	p.State = task.StateRunning
+	reporter.Update(p)
 
 	defer func() {
 		if cancelled {
-			reporter.UpdateStatus(task.StatusCancelled)
+			p.Status = task.StatusCancelled
+			reporter.Update(p)
 		} else {
-			reporter.UpdateStatus(task.StatusOK)
+			p.Status = task.StatusOK
+			reporter.Update(p)
 		}
-		reporter.UpdateState(task.StateStopped)
+		p.State = task.StateStopped
+		reporter.Update(p)
 	}()
 
 	reporter.HandleCancel(func(reporter task.ProgressReporter) error {
 		cancelled = true
-		reporter.UpdateState(task.StateCancelling)
+		p.State = task.StateCancelling
+		reporter.Update(p)
 		return nil
 	})
 	reporter.HandlePause(func(reporter task.ProgressReporter) error {
 		paused = true
-		reporter.UpdateState(task.StatePaused)
+		p.State = task.StatePaused
+		reporter.Update(p)
 		return nil
 	})
 	reporter.HandleResume(func(reporter task.ProgressReporter) error {
 		paused = false
-		reporter.UpdateState(task.StateRunning)
+		p.State = task.StateRunning
+		reporter.Update(p)
 		return nil
 	})
 
+	p.ValueMin = 0
+	p.ValueMax = ttl
 	for ttl > 0 {
+		p.Value = ttl
 		todo := ttl
 		if ttl > step {
 			todo = step
@@ -94,14 +112,9 @@ func (inst *Sleep) doLongSleep(t *cli.TaskContext, ms int64) error {
 		if !paused {
 			ttl -= todo
 		}
-		p := task.Progress{}
-		p.Name = "sleep"
-		p.Title = "Sleep"
-		p.Value = ms - ttl
-		p.ValueMin = 0
-		p.ValueMax = ms
-		reporter.Report(&p)
+		reporter.Report(p)
 	}
+
 	return nil
 }
 
@@ -113,6 +126,7 @@ func (inst *Sleep) getArgMillisec(args []string, index int) (int64, error) {
 	return 0, errors.New("bad argument")
 }
 
+// GetHelpInfo 取帮助信息
 func (inst *Sleep) GetHelpInfo() *cli.CommandHelpInfo {
 	info := &cli.CommandHelpInfo{}
 	info.Name = "sleep"

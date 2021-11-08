@@ -16,12 +16,8 @@ func (inst *MockReporter) Report(p *task.Progress) {
 	vlog.Debug("task.Report: progress")
 }
 
-func (inst *MockReporter) UpdateStatus(s task.Status) {
-	vlog.Info("task.Status=", s)
-}
-
-func (inst *MockReporter) UpdateState(s task.State) {
-	vlog.Info("task.State=", s)
+func (inst *MockReporter) Update(p *task.Progress) {
+	vlog.Info("task.update State:", p.State, " Status:", p.Status)
 }
 
 func (inst *MockReporter) HandleCancel(f task.ProgressControlHandlerFn) {

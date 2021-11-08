@@ -140,7 +140,12 @@ func (inst *syncClientImpl) makeTaskContext(t *cli.Task) *cli.TaskContext {
 	}
 
 	if reporter == nil {
-		reporter = &MockReporter{}
+		r, err := task.GetProgressReporter(context)
+		if err == nil {
+			reporter = r
+		} else {
+			reporter = &MockReporter{}
+		}
 	}
 
 	tc := &cli.TaskContext{}
