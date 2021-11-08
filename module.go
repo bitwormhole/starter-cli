@@ -12,8 +12,8 @@ import (
 
 const (
 	myModuleName = "github.com/bitwormhole/starter-cli"
-	myModuleVer  = "v0.0.6"
-	myModuleRev  = 6
+	myModuleVer  = "v0.0.7"
+	myModuleRev  = 7
 )
 
 //go:embed src/main/resources
